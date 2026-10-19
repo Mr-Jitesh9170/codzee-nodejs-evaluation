@@ -7,7 +7,11 @@ const taskSchema = new mongoose.Schema(
       required: [true, 'Task title is required'],
       trim: true,
       minlength: [3, 'Title must be at least 3 characters'],
-      maxlength: [100, 'Title cannot exceed 100 characters']
+      maxlength: [100, 'Title cannot exceed 100 characters'],
+      validate: {
+        validator: value => value.trim().length >= 3,
+        message: 'Title must contain at least 3 non-whitespace characters'
+      }
     },
     description: {
       type: String,

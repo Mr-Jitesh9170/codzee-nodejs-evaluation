@@ -1,3 +1,4 @@
+
 const dns = require('node:dns')
 dns.setServers(['8.8.8.8', '8.8.4.4'])
 
@@ -30,16 +31,20 @@ app.use((req, res) => {
   })
 })
 
-const startServer = async () => {
-  try {
-    await connectDB()
-    app.listen(PORT, () => {
-      console.log(`Server running on http://localhost:${PORT}`)
-    })
-  } catch (error) {
-    console.error('Server startup failed:', error.message)
-    process.exit(1)
+if (require.main === module) {
+  const startServer = async () => {
+    try {
+      await connectDB()
+      app.listen(PORT, () => {
+        console.log(`Server running on http://localhost:${PORT}`)
+      })
+    } catch (error) {
+      console.error('Server startup failed:', error.message)
+      process.exit(1)
+    }
   }
+
+  startServer()
 }
 
-startServer()
+module.exports = app
