@@ -164,13 +164,42 @@ const createTask = async (req, res) => {
 }
 
 // Get all tasks
+
 const getTasks = async (req, res) => {
   try {
-    const tasks = await Task.find().sort({ createdAt: -1 })
+    const page = Math.max(1, parseInt(req.query.page, 10) || 1)
+    const limit = Math.min(
+      100,
+      Math.max(1, parseInt(req.query.limit, 10) || 10)
+    )
+
+    const filter = {}
+
+    if (req.query.completed !== undefined) {
+      if (!['true', 'false'].includes(req.query.completed)) {
+        return res.status(400).json({
+          success: false,
+          message: 'completed must be true or false'
+        })
+      }
+
+      filter.completed = req.query.completed === 'true'
+    }
+
+    const skip = (page - 1) * limit
+
+    const [tasks, total] = await Promise.all([
+      Task.find(filter).sort({ createdAt: -1 }).skip(skip).limit(limit),
+      Task.countDocuments(filter)
+    ])
 
     return res.status(200).json({
       success: true,
       count: tasks.length,
+      total,
+      page,
+      limit,
+      totalPages: Math.ceil(total / limit),
       data: tasks
     })
   } catch (error) {
